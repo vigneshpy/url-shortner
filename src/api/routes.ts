@@ -1,8 +1,19 @@
 import { Router } from "express";
 import { Url, UrlDocument } from "../models/urlSchema";
 import { generateShortUrl } from "../urlShortner";
+import express from "express";
+import bodyParser from "body-parser";
 
 const router = Router();
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+// Error handling middleware
+app.use((err: any, req: any, res: any) => {
+	console.error(err.stack);
+	res.status(500).send("Something went wrong!");
+});
 
 router.post("/shorten", async (req: any, res: any) => {
 	const { longUrl } = req.body;
@@ -26,7 +37,6 @@ router.post("/shorten", async (req: any, res: any) => {
 router.get("/urls", async (_req: any, res: any) => {
 	try {
 		const urls: UrlDocument[] = await Url.find();
-		console.log("🚀 ~ file: routes.ts:30 ~ router.get ~ urls:", urls);
 		res.status(200).json(urls);
 	} catch (err) {
 		console.error(err);
